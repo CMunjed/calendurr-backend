@@ -1,23 +1,23 @@
 const express = require('express');
 
 // Import route files
-//const authRoutes = require('./authRoutes');
-
-const supabase = require('../config/supabaseClient');
+const authRoutes = require('./authRoutes');
 
 const router = express.Router();
-
-// Use '/api/v1/auth' for auth routes
-//router.use('/auth', authRoutes);
-
-// Example for another route
-// router.use('/logic', businessLogicRoutes);
 
 router.get('/poop', (req, res) => {
     res.send('poop');
 });
 
+// Use '/api/v1/auth' for auth routes
+router.use('/auth', authRoutes);
+
+// Example for another route
+// router.use('/logic', businessLogicRoutes);
+
+/* 
 // Test route to check Supabase connection
+//const supabase = require('../config/supabaseClient');
 router.get('/test', async (req, res) => {
     const { data, error } = await supabase
         .from('test')
@@ -30,5 +30,6 @@ router.get('/test', async (req, res) => {
 
     res.json({ message: 'Supabase connection successful!', data });
 });
+*/
 
 module.exports = router;
