@@ -19,7 +19,11 @@ const login = async (req, res) => {
 
     if (error) return res.status(401).json({ error: 'Invalid credentials' });
 
-    res.json({ message: 'User logged in', user: data.user });
+    res.json({ 
+        message: 'User logged in', 
+        user: data.user, 
+        token: data.session.access_token // Use Supabase's JWT
+    });
 };
 
 module.exports = {
