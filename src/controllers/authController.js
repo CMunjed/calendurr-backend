@@ -69,7 +69,7 @@ const login = async (req, res) => {
         res.json({ 
             message: 'User logged in', 
             user: data.user,
-            //session: session      // Returning the session data in the json response poses security risks.
+            session: session      // Returning the session data in the json response poses security risks; only use for testing w/ curl
         });
     } catch (error) {
         console.error('Login error: ', error);
@@ -79,16 +79,11 @@ const login = async (req, res) => {
 
 // Get current user
 const me = async (req, res) => {
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        
-        if (error) throw error;
-        if (!user) throw new Error('No user found');
 
-        res.json({ user });
-    } catch (error) {
-        res.status(401).json({ error: error.message });
-    }
+    const user = req.user; // Get user from middleware
+
+    // Return user info
+    res.json({ user });
 };
 
 module.exports = {
