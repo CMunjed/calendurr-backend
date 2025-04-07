@@ -1,4 +1,4 @@
-const supabase = require("../config/supabaseClient");
+/*const supabase = require("../config/supabaseClient");
 
 const authMiddleware = async (req, res, next) => {
     const token = req.header("Authorization")?.split(" ")[1];
@@ -19,3 +19,4 @@ const authMiddleware = async (req, res, next) => {
 };
 
 module.exports = authMiddleware;
+*/
