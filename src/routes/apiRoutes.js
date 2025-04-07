@@ -12,9 +12,6 @@ router.get('/poop', (req, res) => {
 // Use '/api/v1/auth' for auth routes
 router.use('/auth', authRoutes);
 
-// Example for another route
-// router.use('/logic', businessLogicRoutes);
-
 /* 
 // Test route to check Supabase connection
 //const supabase = require('../config/supabaseClient');
