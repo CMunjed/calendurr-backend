@@ -1,11 +1,11 @@
 const express = require('express');
-const { register, login } = require('../controllers/authController');
-const authMiddleware = require('../middleware/authMiddleware');
+const { register, login, me } = require('../controllers/authController');
 
 const router = express.Router();
 
 router.post('/register', register);
 router.post('/login', login);
+router.get('/me', me);
 
 // Protected route example to test token verification - eventually, move definition to authController
 router.get('/me', authMiddleware, async (req, res) => {
