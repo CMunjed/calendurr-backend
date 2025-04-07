@@ -8,16 +8,17 @@ const register = async (req, res) => {
         // First, sign up the user
         const { user, error } = await supabase.auth.signUp({ 
             email, 
-            password,
-            options: {
-                emailRedirectTo: 'http://localhost:3000/login'
-            }
+            password //,
+            //options: {
+            //    emailRedirectTo: 'http://localhost:3000/login'
+            //}
         });
 
         if (error) throw error;
 
+        // Commented out confirmation email logic for now.
         // In development, we'll use a service role key to confirm the email
-        if (process.env.NODE_ENV === 'development') {
+        /*if (process.env.NODE_ENV === 'development') {
             const serviceRoleClient = require('@supabase/supabase-js').createClient(
                 process.env.SUPABASE_URL,
                 process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -32,7 +33,7 @@ const register = async (req, res) => {
                 console.error('Error confirming email:', confirmError);
                 throw new Error('Registration successful but email confirmation failed');
             }
-        }
+        }*/
 
         res.json({ message: 'User registered', user });
     } catch (error) {
@@ -52,11 +53,12 @@ const login = async (req, res) => {
         
         if (error) throw error;
         
-        // Set the session cookie
+        // Get session from supabase
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
         if (sessionError) throw sessionError;
 
-        // Set the session cookie in the response
+        // Set session cookie in the response
         res.cookie('sb-access-token', session.access_token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -67,10 +69,10 @@ const login = async (req, res) => {
         res.json({ 
             message: 'User logged in', 
             user: data.user,
-            session: session
+            //session: session      // Returning the session data in the json response poses security risks.
         });
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('Login error: ', error);
         res.status(401).json({ error: error.message });
     }
 };
