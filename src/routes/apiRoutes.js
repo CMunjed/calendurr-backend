@@ -13,7 +13,7 @@ router.get('/poop', (req, res) => {
 // Use '/api/v1/auth' for auth routes
 router.use('/auth', authRoutes);
 
-router.use('', planRoutes)
+router.use('/plans', planRoutes)
 
 /* 
 // Test route to check Supabase connection
