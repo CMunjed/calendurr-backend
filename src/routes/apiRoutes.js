@@ -4,6 +4,7 @@ const express = require('express');
 const authRoutes = require('./authRoutes');
 const planRoutes = require('./planRoutes');
 const courseRoutes = require('./courseRoutes');
+const semesterRoutes = require('./semesterRoutes');
 
 const router = express.Router();
 
@@ -17,6 +18,8 @@ router.use('/auth', authRoutes);
 router.use('/plans', planRoutes);
 
 router.use('/courses', courseRoutes);
+
+router.use('/', semesterRoutes); // No prefix, because some will start with /semesters and some with /plans/:id/semesters
 
 /* 
 // Test route to check Supabase connection
