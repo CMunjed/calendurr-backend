@@ -113,250 +113,30 @@ const createPlan = async (req, res) => {
 }
 
 
-// PUT /plans/:id
+// PUT /plans/:id   -   Note: This route only updates the plan metadata - name and updated_at. 
+//                            For modifying semesters contained inside plans, use the semester routes.
 const updatePlan = async (req, res) => {
-
-    return;
-
-    /*try {
+    try {
         const { user } = req;
         const { id } = req.params;
         const { name } = req.body;
-        const { data, error } = await supabase
+
+        const { data: plan, error } = await supabase
             .from('plans')
             .update({ name, updated_at: new Date().toISOString() })
             .eq('id', id)
             .eq('user_id', user.id)
             .select()
             .single();
-        if (!data) return res.status(404).json({ error: 'Plan not found' });
+
+        if (!plan) return res.status(404).json({ error: 'Plan not found' });
         if (error) throw error;
-        res.json({ plan: data });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update plan' });
-    }*/
 
-    /*try {
-        const { user } = req;
-        const { id } = req.params;
-        const { semesters } = req.body;  // Semester data to be added
-
-        // Make sure plan exists already
-        const { data: planData, error: planError } = await supabase
-            .from('plans')
-            .select('id')
-            .eq('id', id)
-            .eq('user_id', user.id)
-            .single();
-
-        if (planError || !planData) {
-            return res.status(404).json({ error: 'Plan not found' });
-        }
-
-        // Update plan data
-        const { name: currentName } = planData;
-        if (req.body.name) {
-            const { error: updateError } = await supabase
-                .from('plans')
-                .update({ 
-                    name: req.body.name ?? currentName, // Use name already in the db if not provided in the request 
-                    updated_at: new Date().toISOString() 
-                })
-                .eq('id', id)
-                .eq('user_id', user.id);
-        
-            if (updateError) {
-                console.error('Update error:', updateError);
-                return res.status(500).json({ error: 'Failed to update plan data' });
-            }
-        }
-
-        // Insert semesters
-        for (const semester of semesters) {
-            const { term, courses } = semester;
-
-            const { data: semesterData, error: semesterError } = await supabase
-                .from('semesters')
-                .insert([{ plan_id: id, term }])
-                .select()
-                .single();
-
-            if (semesterError) {
-                return res.status(500).json({ error: 'Failed to create semester' });
-            }
-
-            const semesterId = semesterData.id;
-
-            // If successful, insert courses as well
-            for (const courseId of courses) {
-                const { error: courseError } = await supabase
-                    .from('semester_courses')
-                    .insert([{ semester_id: semesterId, course_id: courseId }]); // Status left null
-
-                if (courseError) {
-                    return res.status(500).json({ error: 'Failed to assign courses to semester' });
-                }
-            }
-        }
-
-        // Retrieve updated plan to send as a response
-        const updatedPlan = await supabase
-            .from('plans')
-            .select(`
-                id, 
-                name, 
-                created_at, 
-                updated_at,
-                semesters (
-                    id, term,
-                    semester_courses (
-                        course_id
-                    )
-                )
-            `)
-            .eq('id', id)
-            .eq('user_id', user.id)
-            .single();
-
-        res.json({ plan: updatedPlan });
+        res.json({ plan });
     } catch (error) {
         console.error('Error updating plan: ', error.message);
         res.status(500).json({ error: 'Failed to update plan' });
-    }*/
-
-    try {
-        const { user } = req;
-        const { id } = req.params;
-        const { semesters } = req.body;
-
-        // Make sure plan exists already
-        const { data: planData, error: planError } = await supabase
-            .from('plans')
-            .select('id')
-            .eq('id', id)
-            .eq('user_id', user.id)
-            .single();
-
-        if (planError || !planData) {
-            return res.status(404).json({ error: 'Plan not found' });
-        }
-
-        // Update plan data
-        const { name: currentName } = planData;
-        if (req.body.name) {
-            const { error: updateError } = await supabase
-                .from('plans')
-                .update({ 
-                    name: req.body.name ?? currentName, // Use name already in the db if not provided in the request 
-                    updated_at: new Date().toISOString() 
-                })
-                .eq('id', id)
-                .eq('user_id', user.id);
-        
-            if (updateError) {
-                //console.error('Update error:', updateError);
-                return res.status(500).json({ error: 'Failed to update plan data' });
-            }
-        }
-
-        /*const { data: updatedPlan, error: updateError } = await supabase
-            .from('plans')
-            .update({ 
-                name, 
-                updated_at: new Date().toISOString()  // You can update the updated_at field here
-            })
-            .eq('id', id)
-            .eq('user_id', req.user.id)  // Ensure the user is authorized
-            .single();
-
-        if (updateError) {
-            return res.status(500).json({ error: 'Failed to update plan data' });
-        }*/
-
-        // If semesters are provided, update or insert them
-        if (semesters) {
-            for (const semester of semesters) {
-                // First, check if the semester already exists
-                const { data: existingSemester } = await supabase
-                    .from('semesters')
-                    .select('id')
-                    .eq('id', semester.id)
-                    .single();
-
-                // If the semester exists, update it, otherwise insert it
-                let semesterData;
-                if (existingSemester) {
-                    const { data } = await supabase
-                        .from('semesters')
-                        .update({ 
-                            term: semester.term 
-                        })
-                        .eq('id', semester.id)
-                        .single();
-                    semesterData = data;
-                } else {
-                    // If the semester does not exist, insert it
-                    const { data } = await supabase
-                        .from('semesters')
-                        .insert([{ 
-                            plan_id: id, 
-                            term: semester.term 
-                        }])
-                        .single();
-                    semesterData = data;
-                }
-
-                // If semester_courses are provided, update or insert them for each semester
-                if (semester.semester_courses) {
-                    // Delete all existing semester_courses for this semester before inserting/updating
-                    await supabase
-                        .from('semester_courses')
-                        .delete()
-                        .eq('semester_id', semesterData.id);
-
-                    // Insert the new semester_courses
-                    for (const course of semester.semester_courses) {
-                        await supabase
-                            .from('semester_courses')
-                            .insert([{ 
-                                semester_id: semesterData.id, 
-                                course_id: course 
-                            }]);
-                    }
-                }
-            }
-        }
-
-        // Retrieve the updated plan
-        /*const { updatedPlan, error } = await supabase
-            .from('plans')
-            .select(`
-                id, 
-                name, 
-                created_at, 
-                updated_at,
-                semesters (
-                    id, term,
-                    semester_courses (
-                        course_id
-                    )
-                )
-            `)
-            .eq('id', id)
-            .eq('user_id', user.id)
-            .single();
-
-        if (!updatedPlan) return res.status(404).json({ error: 'Strange, updated plan not found' });
-        if (error) throw error;
-
-        // Return the updated plan data
-        res.json({ plan: updatedPlan });*/
-        
-        res.json({ message: 'Plan updated successfully!' });
-    } catch (error) {
-        console.error('Error updating plan: ', error.message);
-        res.status(500).json({ error: 'Failed to update plan' });
-    }  
+    }
 }
 
 
