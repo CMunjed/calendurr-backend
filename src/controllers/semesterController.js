@@ -168,6 +168,101 @@ const createSemester = async (req, res) => {
 
 // PUT /semesters/:id
 const updateSemester = async (req, res) => {    
+
+    /* Expected req.body shape
+        {
+            "term": "Fall",
+            "semester_courses": [
+                { "course_id": 1 },
+                { "course_id": 2 }
+            ]
+        }
+    */
+
+    try {
+        const { user } = req;
+        const { id } = req.params; // Assuming semesterId comes from params
+        const { term, semester_courses } = req.body; // Assuming newSemesterData contains updates
+
+        // Get the semester --> ensure it exists --> get plan_id
+        const { data: semester, error: semesterError } = await supabase
+            .from('semesters')
+            .select('id, plan_id')
+            .eq('id', id)
+            .single();
+
+        if (semesterError || !semester) {
+            return res.status(404).json({ error: 'Semester not found' });
+        }
+
+        // Make sure the user owns the plan
+        const { data: plan, error: planError } = await supabase
+            .from('plans')
+            .select('id')
+            .eq('id', semester.plan_id)
+            .eq('user_id', user.id)
+            .single();
+
+        if (planError || !plan) {
+            return res.status(403).json({ error: 'Unauthorized access to semester' });
+        }
+
+        // Update semester data (just term atp)
+        const { error: updateSemesterError } = await supabase
+            .from('semesters')
+            .update({ term })
+            .eq('id', id);
+
+        if (updateSemesterError) {
+            return res.status(500).json({ error: 'Failed to update semester' });
+        }
+
+        // Replace semester_courses belonging to the semester
+        if (Array.isArray(semester_courses)) { // Only if semester_courses is in the request body
+            // Delete existing semester_courses
+            const { error: deleteCoursesError } = await supabase
+                .from('semester_courses')
+                .delete()
+                .eq('semester_id', id);
+
+            if (deleteCoursesError) {
+                return res.status(500).json({ error: 'Failed to delete old semester_courses' });
+            }
+
+            // Insert new semester_courses
+            const newCourses = semester_courses.map(sc => ({
+                semester_id: id,
+                course_id: sc.course_id,
+            }));
+
+            if (newCourses.length > 0) {
+                const { error: insertError } = await supabase
+                    .from('semester_courses')
+                    .insert(newCourses);
+
+                if (insertError) {
+                    return res.status(500).json({ error: 'Failed to insert new semester_courses' });
+                }
+            }
+        }
+
+        // Update plan’s updated_at timestamp
+        const { error: planUpdateError } = await supabase
+            .from('plans')
+            .update({ updated_at: new Date() })
+            .eq('id', semester.plan_id);
+
+        if (planUpdateError) {
+            return res.status(500).json({ error: 'Failed to update plan timestamp' });
+        }
+
+        // A verbose response body containing the new semester data shouldn't be necessary,
+        // since the UI updates locally. The new semester data will by synced upon page refresh.
+        res.status(200).json({ message: 'Semester and courses updated successfully' });
+    } catch (error) {
+        console.error('Error updating semester:', error.message);
+        res.status(500).json({ error: 'Unexpected error updating semester' });
+    }
 }  
 
 
@@ -180,13 +275,17 @@ const deleteSemester = async (req, res) => {
         // Get semester (make sure it exists)
         const { data: semester, error: semesterError } = await supabase
             .from('semesters')
-            .select(`
+            /*.select(`
                 id,
                 term,
                 plan_id,
                 semester_courses (
                     course_id
                 )
+            `)*/
+            .select(`
+                id,
+                plan_id,
             `)
             .eq('id', id)
             .single();
