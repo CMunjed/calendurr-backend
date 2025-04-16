@@ -30,14 +30,11 @@ const getSemestersInPlan = async (req, res) => {
             `)
             .eq('plan_id', id)
 
-        if (semesterError) {
-            console.error('Error fetching semesters:', semesterError.message);
-            return res.status(500).json({ semesterError: 'Failed to retrieve semesters' });
-        }
+        if (semesterError) throw semesterError;
 
         return res.json({ semesters });
     } catch (error) {
-        console.error('Unexpected error fetching semesters:', error.message);
+        console.error('Error fetching semesters:', error.message);
         return res.status(500).json({ error: 'Failed to retrieve semesters' });
     }   
 }
@@ -82,7 +79,7 @@ const getSemesterById = async (req, res) => {
 
         return res.json({ semester });
     } catch (error) {
-        console.error('Unexpected error fetching semester:', error.message);
+        console.error('Error fetching semester:', error.message);
         return res.status(500).json({ error: 'Failed to retrieve semester' });
     }   
 }    
@@ -212,19 +209,18 @@ const deleteSemester = async (req, res) => {
         }
 
         // Finally, delete the semester
+        // Don't have to delete associated semester_courses because of ON DELETE CASCADE
         const { error: deleteError } = await supabase
             .from('semesters')
             .delete()
             .eq('id', id);
 
-        if (deleteError) {
-            console.error('Error deleting semester:', deleteError.message);
-            return res.status(500).json({ error: 'Failed to delete semester' });
-        }
+        if (deleteError) throw deleteError;
 
         res.status(204).send(); // No content, sent on successful delete
     } catch (error) {
-        res.status(500).json({ error: 'Unexpected error deleting semester' });
+        console.error('Error deleting semester:', deleteError.message);
+        res.status(500).json({ error: 'Failed to delete semester' });
     }        
 }
 
