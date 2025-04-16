@@ -1,17 +1,15 @@
 const supabase = require('../config/supabaseClient');
 
-
 // GET /plans
 const getPlans = async (req, res) => {
     try {
         const { user } = req;
 
-        const { data, error } = await supabase
+        /*const { data, error } = await supabase
             .from('plans')
             .select('*')
-            .eq('user_id', user.id);
-
-        /*
+            .eq('user_id', user.id);*/
+        
         const { data, error } = await supabase
             .from('plans')
             .select(`
@@ -28,25 +26,29 @@ const getPlans = async (req, res) => {
                 )
             `)
             .eq('user_id', user.id); 
-        */
+        
 
-        /* Will return nested json structure like this
-        [
-            {
-                "id": "...",
-                "name": "...",
-                "semesters": [
+        /* Returns nested json structure like this
+        {"plans": 
+            [
                 {
                     "id": "...",
-                    "term": "...",
-                    "semester_courses": [
-                    { "course_id": "..." },
-                    { "course_id": "..." }
+                    "name": "...",
+                    "created_at": "...",
+                    "updated_at": "...",
+                    "semesters": [
+                        {
+                            "id": "...",
+                            "term": "...",
+                            "semester_courses": [
+                                { "course_id": "..." },
+                                { "course_id": "..." }
+                            ]
+                        }
                     ]
                 }
-                ]
-            }
-        ]
+            ]
+        }
         */
 
         if (error) throw error;
@@ -67,7 +69,10 @@ const getPlanById = async (req, res) => {
         const { data, error } = await supabase
             .from('plans')
             .select(`
-                id, name, created_at, updated_at,
+                id, 
+                name, 
+                created_at, 
+                updated_at,
                 semesters (
                     id, term,
                     semester_courses (
@@ -75,11 +80,13 @@ const getPlanById = async (req, res) => {
                     )
                 )
             `)
-            .eq('id', id)
+            .eq('id', id)   // Where plan.id = id in params
             .eq('user_id', user.id)
             .single();
+
         if (!data) return res.status(404).json({ error: 'Plan not found' });
         if (error) throw error;
+
         res.json({ plan: data });
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve plan' });
@@ -87,9 +94,11 @@ const getPlanById = async (req, res) => {
 };
 
 
+// UNTESTED
+
 // POST /plans
 const createPlan = async (req, res) => {
-    try {
+    /*try {
         const { user } = req;
         const { name } = req.body;
         const { data, error } = await supabase
@@ -101,7 +110,7 @@ const createPlan = async (req, res) => {
         res.status(201).json({ plan: data });
     } catch (error) {
         res.status(500).json({ error: 'Failed to create plan' });
-    }
+    }*/
 }
 
 
