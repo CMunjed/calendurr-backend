@@ -107,7 +107,7 @@ const createPlan = async (req, res) => {
 
 // PUT /plans/:id
 const updatePlan = async (req, res) => {
-    try {
+    /*try {
         const { user } = req;
         const { id } = req.params;
         const { name } = req.body;
@@ -123,7 +123,7 @@ const updatePlan = async (req, res) => {
         res.json({ plan: data });
     } catch (error) {
         res.status(500).json({ error: 'Failed to update plan' });
-    }
+    }*/
 }
 
 

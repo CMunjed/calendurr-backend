@@ -3,6 +3,7 @@ const express = require('express');
 // Import route files
 const authRoutes = require('./authRoutes');
 const planRoutes = require('./planRoutes');
+const courseRoutes = require('./courseRoutes');
 
 const router = express.Router();
 
@@ -13,7 +14,9 @@ router.get('/poop', (req, res) => {
 // Use '/api/v1/auth' for auth routes
 router.use('/auth', authRoutes);
 
-router.use('/plans', planRoutes)
+router.use('/plans', planRoutes);
+
+router.use('/courses', courseRoutes);
 
 /* 
 // Test route to check Supabase connection
