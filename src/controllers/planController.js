@@ -4,13 +4,8 @@ const supabase = require('../config/supabaseClient');
 const getPlans = async (req, res) => {
     try {
         const { user } = req;
-
-        /*const { data, error } = await supabase
-            .from('plans')
-            .select('*')
-            .eq('user_id', user.id);*/
         
-        const { data, error } = await supabase
+        const { data: plans, error } = await supabase
             .from('plans')
             .select(`
                 id,
@@ -53,7 +48,7 @@ const getPlans = async (req, res) => {
 
         if (error) throw error;
 
-        res.json({ plans: data });
+        res.json({ plans });
     } catch (error) {
         console.error('Error fetching plans: ', error.message);
         res.status(500).json({ error: 'Failed to retrieve plans' });
@@ -67,7 +62,7 @@ const getPlanById = async (req, res) => {
         const { user } = req;
         const { id } = req.params;
 
-        const { data, error } = await supabase
+        const { data: plan, error } = await supabase
             .from('plans')
             .select(`
                 id, 
@@ -85,10 +80,10 @@ const getPlanById = async (req, res) => {
             .eq('user_id', user.id)
             .single();
 
-        if (!data) return res.status(404).json({ error: 'Plan not found' });
+        if (!plan) return res.status(404).json({ error: 'Plan not found' });
         if (error) throw error;
 
-        res.json({ plan: data });
+        res.json({ plan });
     } catch (error) {
         console.error('Error fetching plan: ', error.message);
         res.status(500).json({ error: 'Failed to retrieve plan' });
@@ -102,7 +97,7 @@ const createPlan = async (req, res) => {
         const { user } = req;
         const { name } = req.body;
 
-        const { data, error } = await supabase
+        const { data: plan, error } = await supabase
             .from('plans')
             .insert([{ user_id: user.id, name }])
             .select()
@@ -110,7 +105,7 @@ const createPlan = async (req, res) => {
 
         if (error) throw error;
 
-        res.status(201).json({ plan: data });
+        res.status(201).json({ plan });
     } catch (error) {
         console.error('Error creating plan: ', error.message);
         res.status(500).json({ error: 'Failed to create plan' });
@@ -367,22 +362,24 @@ const updatePlan = async (req, res) => {
 
 // DELETE /plans/:id
 const deletePlan = async (req, res) => {
-    // Hold off on implementing this route until the other ones are tested more thoroughly.
-    /*
-    try {
+    // Should delete the plan, including not just its entry, but all semester and semester_course entries.
+    /*try {
         const { user } = req;
         const { id } = req.params;
+
         const { error } = await supabase
             .from('plans')
             .delete()
             .eq('id', id)
             .eq('user_id', user.id);
+
         if (error) throw error;
+
         res.status(204).send(); // No content, sent on successful delete
     } catch (error) {
+        console.error('Error deleting plan: ', error.message);
         res.status(500).json({ error: 'Failed to delete plan' });
-    }
-    */
+    }*/
 }
 
 
