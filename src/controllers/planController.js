@@ -362,8 +362,9 @@ const updatePlan = async (req, res) => {
 
 // DELETE /plans/:id
 const deletePlan = async (req, res) => {
-    // Should delete the plan, including not just its entry, but all semester and semester_course entries.
-    /*try {
+    // Should delete the plan, including not just its entry, but also all semester and semester_course entries
+    // This is bc of ON DELETE CASCADE
+    try {
         const { user } = req;
         const { id } = req.params;
 
@@ -371,7 +372,7 @@ const deletePlan = async (req, res) => {
             .from('plans')
             .delete()
             .eq('id', id)
-            .eq('user_id', user.id);
+            .eq('user_id', user.id); // Makes sure the user is authorized to delete the plan
 
         if (error) throw error;
 
@@ -379,7 +380,7 @@ const deletePlan = async (req, res) => {
     } catch (error) {
         console.error('Error deleting plan: ', error.message);
         res.status(500).json({ error: 'Failed to delete plan' });
-    }*/
+    }
 }
 
 
