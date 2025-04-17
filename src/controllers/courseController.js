@@ -3,7 +3,7 @@ const supabase = require('../config/supabaseClient');
 // GET /courses
 const getCourses = async (req, res) => {
     try {
-
+        //id, name, code, credit_hours, 
         const { data, error } = await supabase
             .from('courses')
             .select(`
@@ -11,7 +11,7 @@ const getCourses = async (req, res) => {
                 course_type:course_types(type),
                 course_coreqs:course_coreqs!course_coreqs_course_id_fkey (
                     coreq:coreq_id (
-                        id, name, code, credit_hours
+                        *
                     ),
                     is_prereq
                 )
@@ -38,7 +38,7 @@ const getCourseById = async (req, res) => {
                 course_type:course_types(type),
                 course_coreqs:course_coreqs!course_coreqs_course_id_fkey (
                     coreq:coreq_id (
-                        id, name, code, credit_hours
+                        *
                     ),
                     is_prereq
                 )
