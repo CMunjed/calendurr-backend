@@ -7,9 +7,18 @@ const apiRoutes = require('./routes/apiRoutes');
 
 const app = express();
 
+const allowedOrigins = ['http://localhost:3000', 'https://calendurr-frontend.vercel.app'];
+
 // Configure CORS
 app.use(cors({
-    origin: 'http://localhost:3000',
+    //origin: 'http://localhost:3000',
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
