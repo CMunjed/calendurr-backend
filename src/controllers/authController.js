@@ -62,7 +62,7 @@ const login = async (req, res) => {
         res.cookie('sb-access-token', session.access_token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 60 * 60 * 24 * 7 // 1 week
         });
 
