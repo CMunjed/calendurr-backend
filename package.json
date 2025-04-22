@@ -20,6 +20,7 @@
   "homepage": "https://github.com/CMunjed/calendurr-backend#readme",
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0"

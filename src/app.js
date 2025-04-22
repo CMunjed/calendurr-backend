@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const { version } = require('../package.json');
 const apiRoutes = require('./routes/apiRoutes');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
@@ -25,6 +26,8 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+app.use(cookieParser());
 
 // Default route + debug message
 app.get('/', (req, res) => {
